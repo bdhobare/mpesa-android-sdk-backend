@@ -69,7 +69,7 @@
 
             <div class="content">
                 <div class="title m-b-md">
-                      MPESA SAMPLE BACKEND
+                      MPESA SDK BACKEND
                 </div>
 
                 <div class="links">
