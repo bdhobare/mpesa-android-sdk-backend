@@ -10,10 +10,15 @@ use App\Firebase\Push;
 
 class MPESAController extends Controller
 {
+
   public function index(Request $request){
     $firebaseId = $request->route('firebaseId');
 
     $result = json_decode($request->getContent());
+    if (!property_exists($result, "Body")) {
+      //NOT from Safaricom
+      return "Invalid content";
+    }
     $Body = $result->Body;
     $stkCallback = $Body->stkCallback;
 
