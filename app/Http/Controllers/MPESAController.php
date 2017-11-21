@@ -29,9 +29,10 @@ class MPESAController extends Controller
 
     $transaction = new Transaction(['merchant_request_id' => $MerchantRequestID, 'checkout_request_id' => $CheckoutRequestID,
                   'result_code' => $ResultCode, 'result_desc' => $ResultDesc]);
-    if (!property_exists($stkCallback, "CallbackMetadata")) {
+
+    if ((!property_exists($stkCallback, "CallbackMetadata")) && $firebaseId != null) {
       $transaction->save();
-      return $ResultDesc;
+      return $this->sendFirebaseNotification($transaction, $firebaseId);
     }
     $CallbackMetadata = $stkCallback->CallbackMetadata;
     $Item = $CallbackMetadata->Item;
@@ -72,6 +73,7 @@ class MPESAController extends Controller
     $transaction->save();
     if($firebaseId != null){
       //send firebase push notification
+
       return $this->sendFirebaseNotification($transaction, $firebaseId);
     }
 
@@ -80,11 +82,16 @@ class MPESAController extends Controller
   private function sendFirebaseNotification($transaction, $firebaseId){
     $firebase = new Firebase();
     $push = new Push();
-    $push->setTitle('Transaction successful.');
-    $push->setMessage('Your transaction of KES.'.$transaction->amount.' was successful. MPESA Receipt Number is '.$transaction->mpesa_receipt_number);
+    $push->setCode($transaction->result_code);
+    if($transaction->result_code != 0){
+      $push->setTitle('Transaction cancelled.');
+      $push->setMessage('Your transaction was cancelled.');
+    }else{
+      $push->setTitle('Transaction successful.');
+      $push->setMessage('Your transaction of KES.'.$transaction->amount.' was successful. MPESA Receipt Number is '.$transaction->mpesa_receipt_number);
+    }
     $payload = array();
-    $payload['amount'] = $transaction->amount;
-    $payload['MpesaReceiptNumber'] = $transaction->mpesa_receipt_number;
+    $payload['mpesa_receipt_number'] = $transaction->mpesa_receipt_number;
     //TODO add extra attributes of interest
     $push->setPayload($payload);
 
