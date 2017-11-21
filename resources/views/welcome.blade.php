@@ -69,7 +69,7 @@
 
             <div class="content">
                 <div class="title m-b-md">
-                      MPESA ANDROID SAMPLE BACKEND
+                      MPESA SAMPLE BACKEND
                 </div>
 
                 <div class="links">
